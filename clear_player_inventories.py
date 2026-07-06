@@ -20,6 +20,46 @@ ARMOR_SLOTS = {
     100: "Feet"
 }
 
+# Player UUIDs exempt from inventory clearing. These players are skipped entirely:
+# they are never scanned, reported, or wiped (regardless of --player or all-players mode).
+EXEMPT_UUIDS = {
+    "50fe1f16-4a2f-481c-ae6e-ff7857b64ada",
+    "5ef047f8-bd39-4884-9cc7-7b8fcb127f06",
+    "5d9ac338-e321-49dd-810a-bcaa6d695a5a",
+    "197e79bb-4e99-4cf1-b49c-27b4c151746a",
+    "b1f40a18-d3f7-4026-92d0-232dae321edb",
+    "4ede701b-b9e2-4077-ab81-0c1ad0266d55",
+    "1134b3c0-2b53-4176-9131-d0ce235db30c",
+    "10a2a38d-2e72-4b76-bdd5-636bd8ee8c3a",
+    "7318d370-5c43-4b44-b77d-f07c75379b62",
+    "632b9b79-8335-463e-b336-6ce413805405",
+    "1e210b03-374f-4966-8646-4d4a21b4c1f0",
+    "ec9989c2-4fd3-429e-9f41-4d1af8ca8b91",
+    "683af471-6905-4e1c-ac18-f655b2126402",
+    "79b184f6-e6ba-42d3-8839-2f6a68862339",
+    # Operators from ops.json
+    "bfd6afaf-8c79-41b7-93c4-032e91d98623",  # 3xothiccthighs
+    "9b656cc5-bd8f-4907-81dd-a744d79851a9",  # SaruiiSK
+    "fb569dcf-84db-4633-b99a-e69cdbdca577",  # SalzaReygu
+    "8cd8ddea-9067-4bf8-b41b-5e06858bda6e",  # namae_kun
+    "ec87d019-2175-47e6-8f80-7eb2bd381e1a",  # Furguston
+    "5668121c-d93a-4565-a2f7-19a6e371f9fb",  # vioraweissheart
+    "774489af-fb2d-4574-9396-f4a05da1e860",  # 1yzeekiil
+    "81929657-6370-4c83-a0f7-7c9c0b4b9d46",  # SunshiSunshu
+    "1899c258-4bb4-494e-9081-274c3e92f091",  # MegaMinerDL
+    "92652e2f-0916-4e57-b5de-5bf85317adea",  # Ysa_Hong
+    "bd88e28a-5fc5-49d9-9110-37012f325425",  # VictoryCar
+    "72451da8-2575-4cd6-9ed9-c733c6cc37b8",  # maceyzin
+    "df3c82a9-94cb-41a7-8832-f34645b315a3",  # HoshiumiToshi
+    "0d4ea0c7-2b53-4c3e-ab76-97a8044e7058",  # Apollo_Neos
+    "6cdc8204-4b2b-469a-b2d5-8865731aea55",  # LucksShi
+    "44ff3dd0-d0b3-4565-aad9-e877aa1ea819",  # GlitchVT
+    "dafc5aba-07c7-40d9-a6ab-e5556a32b8df",  # 10JIN_
+    "b1dece56-12bb-49c6-b37d-73183378e0e7",  # LucaLullaby
+    "5957ba10-2f00-470c-9850-7d0f5aec6564",  # wendithecryptid
+    "c32afc76-45b4-4697-affa-f9c586b7f171",  # Furgster
+}
+
 def uuid_to_ints(uuid_str):
     """Converts a standard UUID hex string into Minecraft's NBT IntArray (4 signed 32-bit integers) representation."""
     try:
@@ -611,6 +651,16 @@ Examples:
             if UUID_PATTERN.match(f):
                 uuid_str = f[:-4].lower()
                 target_files.append((uuid_str, os.path.join(playerdata_dir, f)))
+
+    # Remove exempt players: they are skipped entirely (never scanned, reported, or wiped).
+    exempt_lower = {u.lower() for u in EXEMPT_UUIDS}
+    exempted = [t for t in target_files if t[0].lower() in exempt_lower]
+    target_files = [t for t in target_files if t[0].lower() not in exempt_lower]
+    if exempted:
+        print(f"Exempt players skipped ({len(exempted)}):")
+        for uuid_str, _ in exempted:
+            username = username_cache.get(uuid_str, "Unknown")
+            print(f"  - {username} ({uuid_str})")
 
     if not target_files:
         print("No player data files found to process.")
