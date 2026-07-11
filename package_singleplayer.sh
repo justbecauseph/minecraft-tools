@@ -143,6 +143,10 @@ rsync -a "$CONFIG_SRC/" "$MC/config/"
 log "copying resource/shader packs"
 rsync -a "$PACKS_SRC/resourcepacks/" "$MC/resourcepacks/"
 rsync -a "$PACKS_SRC/shaderpacks/" "$MC/shaderpacks/"
+# the server's own resource pack (server.properties resource-pack=), served to
+# players automatically in MP so the SP bundle must carry it too
+curl -fsSL --retry 3 -o "$MC/resourcepacks/lampas-resource-pack.zip" \
+    "https://github.com/justbecauseph/lampas-resource-pack/releases/latest/download/lampas-resource-pack.zip"
 
 # --- duplicate-mod guard (two versions of one modid = instant boot crash) ---
 log "checking for duplicate mod ids"
@@ -284,9 +288,12 @@ GOOD TO KNOW
     about the currency/bank system still works locally.
   - Voice chat does nothing in singleplayer; ignore it.
   - Waystones, trains, airships, shops, photos — it is all in there.
-  - Bundled extras: Fresh Animations resource packs (enable under Options ->
-    Resource Packs) and Complementary/Photon shaders (Iris is included --
-    Options -> Video Settings -> Shader Packs).
+  - IMPORTANT: enable the "lampas-resource-pack" under Options -> Resource
+    Packs -- the server applied it automatically, singleplayer will not.
+    (Custom coin/item looks and other Lampas touches live there.)
+  - Bundled extras: Fresh Animations resource packs (same menu) and
+    Complementary/Photon shaders (Iris is included -- Options -> Video
+    Settings -> Shader Packs).
 
 Enjoy, and thanks for playing on Lampas: The Last Resort!
 EOF
